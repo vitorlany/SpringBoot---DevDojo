@@ -1,6 +1,7 @@
 package academy.devdojo.service;
 
 import academy.devdojo.domain.Anime;
+import academy.devdojo.exception.BadRequestException;
 import academy.devdojo.mapper.AnimeMapper;
 import academy.devdojo.repository.AnimeRepository;
 import academy.devdojo.requests.AnimePostRequestBody;
@@ -27,7 +28,7 @@ public class AnimeService {
 
     public Anime findByIdOrThrowBadRequest(Long id) {
         return animeRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Anime ID not Found"));
+                .orElseThrow(() -> new BadRequestException("Anime ID not Found"));
     }
 
     public Anime save(AnimePostRequestBody anime) {
