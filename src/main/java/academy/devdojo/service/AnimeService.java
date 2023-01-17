@@ -1,46 +1,47 @@
 package academy.devdojo.service;
 
 import academy.devdojo.domain.Anime;
+import academy.devdojo.repository.AnimeRepository;
+import academy.devdojo.requests.AnimePostRequestBody;
+import academy.devdojo.requests.AnimePutRequestBody;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AnimeService {
-    private static List<Anime> animes;
-
-    static {
-        animes = new ArrayList<>(List.of(new Anime(1L, "DBZ"), new Anime(2L, "Bersek")));
-    }
+    private final AnimeRepository animeRepository;
 
     public List<Anime> listAll() {
-        return animes;
+        return animeRepository.findAll();
     }
 
-    public Anime findById(Long id) {
-        return animes.stream()
-                .filter(anime -> anime.getId().equals(id))
-                .findFirst()
+    public Anime findByIdOrThrowBadRequest(Long id) {
+        return animeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Anime ID not Found"));
     }
 
-    public Anime save(Anime anime) {
-        anime.setId(ThreadLocalRandom.current().nextLong(3, 1_000_000));
-        animes.add(anime);
-        return anime;
+    public Anime save(AnimePostRequestBody anime) {
+        Anime build = Anime.builder().name(anime.getName()).build();
+        return animeRepository.save(build);
     }
 
     public void delete(Long id) {
-        animes.remove(findById(id));
+        animeRepository.delete(findByIdOrThrowBadRequest(id));
     }
 
-    public void replace(Anime anime) {
-        delete(anime.getId());
-        animes.add(anime);
+    public void replace(AnimePutRequestBody animePutRequestBody) {
+        Anime saved = findByIdOrThrowBadRequest(animePutRequestBody.getId());
+
+        Anime anime = Anime.builder()
+                .id(saved.getId())
+                .name(animePutRequestBody.getName())
+                .build();
+
+        animeRepository.save(anime);
     }
 }
