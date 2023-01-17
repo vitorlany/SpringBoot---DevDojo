@@ -1,7 +1,9 @@
 package academy.devdojo.service;
 
 import academy.devdojo.domain.Anime;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,10 +16,10 @@ public class AnimeService {
         return animes;
     }
 
-    public List<Anime> findById(Long id) {
+    public Anime findById(Long id) {
         return animes.stream()
-                .filter(anime -> anime.getId() == id)
+                .filter(anime -> anime.getId().equals(id))
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Anime ID not Found"));
     }
 }
