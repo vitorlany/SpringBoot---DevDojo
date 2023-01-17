@@ -1,6 +1,7 @@
 package academy.devdojo.service;
 
 import academy.devdojo.domain.Anime;
+import academy.devdojo.mapper.AnimeMapper;
 import academy.devdojo.repository.AnimeRepository;
 import academy.devdojo.requests.AnimePostRequestBody;
 import academy.devdojo.requests.AnimePutRequestBody;
@@ -26,8 +27,8 @@ public class AnimeService {
     }
 
     public Anime save(AnimePostRequestBody anime) {
-        Anime build = Anime.builder().name(anime.getName()).build();
-        return animeRepository.save(build);
+        Anime res = AnimeMapper.INSTANCE.toAnime(anime);
+        return animeRepository.save(res);
     }
 
     public void delete(Long id) {
@@ -37,11 +38,8 @@ public class AnimeService {
     public void replace(AnimePutRequestBody animePutRequestBody) {
         Anime saved = findByIdOrThrowBadRequest(animePutRequestBody.getId());
 
-        Anime anime = Anime.builder()
-                .id(saved.getId())
-                .name(animePutRequestBody.getName())
-                .build();
-
+        Anime anime = AnimeMapper.INSTANCE.toAnime(animePutRequestBody);
+        anime.setId(saved.getId());
         animeRepository.save(anime);
     }
 }
